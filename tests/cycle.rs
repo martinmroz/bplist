@@ -4,7 +4,7 @@ use std::io::Read;
 use std::path::PathBuf;
 
 #[test]
-fn test_deserialize_point() {
+fn test_deserialize_input_with_cycle() {
     let mut plist_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     plist_path.push("tests/cycle.plist");
 
