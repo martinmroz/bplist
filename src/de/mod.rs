@@ -397,9 +397,10 @@ impl<'de> ObjectDeserializer<'de> {
     /// Pushes an object onto the collection stack to ensure no cycles can occur.
     #[must_use = "the result must be checked to avoid creating a cycle"]
     fn enter_collection(&mut self, object: usize) -> Result<()> {
-        let already_visited = self.collection_stack.insert(object) == false;
-        if already_visited {
+        if self.collection_stack.insert(object) == false {
             Err(Error::CycleDetected)
+        } else if self.collection_stack.len() == 128 {
+            Err(Error::MaximumDepthExceeded)
         } else {
             Ok(())
         }

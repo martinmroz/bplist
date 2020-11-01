@@ -69,6 +69,8 @@ pub enum Error {
     ExpectedDictionary,
     /// Binary property lists are directed acyclic graphs and objects cannot reference each other.
     CycleDetected,
+    /// The parser limits the maximum nesting level of collections.
+    MaximumDepthExceeded,
     /// Prematurely reached the end of the file.
     Eof,
 }
@@ -140,6 +142,8 @@ impl Display for Error {
                 formatter.write_str("expected dictionary"),
             Error::CycleDetected =>
                 formatter.write_str("cycle detected"),
+            Error::MaximumDepthExceeded =>
+                formatter.write_str("collection nesting depth limit exceeded"),
             Error::Eof =>
                 formatter.write_str("unexpected end of input"),
         }
