@@ -25,46 +25,18 @@
 //! 1. https://github.com/opensource-apple/CF/blob/master/ForFoundationOnly.h
 //! 2. https://opensource.apple.com/source/CF/CF-855.17/CFBinaryPList.c
 
-/// Any value which can be encoded in a binary property list.
-#[derive(Clone, PartialEq, PartialOrd, Debug)]
-pub enum Object {
-    // A boolean literal value.
-    Boolean(bool),
-    /// A numeric literal value.
-    Number(Number),
-    /// An array of arbitrary data bytes.
-    Data(Vec<u8>),
-    /// A date.
-    Date(Date),
-    /// A UID value.
-    Uid(Vec<u8>),
-    /// A string.
-    String(String),
-    /// An array of objects.
-    Array(Array),
-}
-
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
-/// A numeric value roughtly equivalent to an `NSNumber`.
-pub enum Number {
-    /// An integer value.
-    Integer(i64),
-    /// A single-precision floating-point value.
-    Float(f32),
-    /// A double-precision floating-point value.
-    Double(f64),
-}
+use ordered_float::OrderedFloat;
 
 /// A date structure roughly equivalent to an `NSDate`.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Date {
     /// A double-precision 64-bit offset, in seconds, from the Core Data Epoch.
     /// This is defined as 1 January 2001, 00:00:00 UTC.
-    pub offset: f64
+    pub absolute_time: OrderedFloat<f64>,
 }
 
 /// A UID structure treating the contents as an opaque big-endian blob.
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Uid {
     /// A blob of identifier data.
     pub data: Vec<u8>,
@@ -72,3 +44,24 @@ pub struct Uid {
 
 /// An array of objects roughly equivalent to an `NSArray.
 pub type Array = Vec<Object>;
+
+/// Any value which can be encoded in a binary property list.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+pub enum Object {
+    // A boolean value.
+    Boolean(bool),
+    /// An integer value.
+    Integer(i64),
+    /// An floating-point value.
+    Real(OrderedFloat<f64>),
+    /// An array of arbitrary data bytes.
+    Data(Vec<u8>),
+    /// A date.
+    Date(Date),
+    /// A UID value.
+    Uid(Uid),
+    /// A string.
+    String(String),
+    /// An array of objects.
+    Array(Array),
+}

@@ -5,7 +5,6 @@ use std::path::PathBuf;
 
 #[test]
 fn test_deserialize_integer_list() {
-    pretty_env_logger::init();
     let mut plist_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     plist_path.push("tests/integer_list.plist");
 

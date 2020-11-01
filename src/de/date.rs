@@ -13,6 +13,7 @@
 //! a special name and field, similar to the way the TOML crate approaches it.
 
 use serde::de;
+use ordered_float::OrderedFloat;
 
 use std::fmt;
 
@@ -22,7 +23,7 @@ use crate::object::Date;
 pub const STRUCT_NAME: &str = "$__bplist_private_Date";
 
 /// Name of the field in the structure.
-pub const STRUCT_FIELD: &str = "$__bplist_private_Date_offset";
+pub const STRUCT_FIELD: &str = "$__bplist_private_Date_absolute_time";
 
 /// Custom deserializer for the Date pseudo-structure.
 impl<'de> de::Deserialize<'de> for Date {
@@ -48,8 +49,9 @@ impl<'de> de::Deserialize<'de> for Date {
                 if value.is_none() {
                     return Err(de::Error::custom("date key not found"));
                 }
+                let absolute_time: f64 = visitor.next_value()?;
                 Ok(Date {
-                    offset: visitor.next_value()?
+                    absolute_time: OrderedFloat::from(absolute_time)
                 })
             }
         }
