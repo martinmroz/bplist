@@ -420,14 +420,14 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
             // A date object is deserialized as a Date type via map access object.
             ObjectFormat::Date => {
                 let absolute_time = self.object_table.parse_date(object)?;
-                let deserializer = DateDeserializer::new(absolute_time);
+                let deserializer = DateMap::new(absolute_time);
                 visitor.visit_map(deserializer)
             }
 
             // A UID object is deserialized as a Uid type via map access object.
             ObjectFormat::Uid => {
                 let bytes = self.object_table.parse_uid(object)?;
-                let deserializer = UidDeserializer::new(Vec::from(bytes));
+                let deserializer = UidMap::new(Vec::from(bytes));
                 visitor.visit_map(deserializer)
             }
 
@@ -437,7 +437,7 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 
                 // Track entering the array to detect reference cycles.
                 self.enter_collection(object)?;
-                let sequence = ArraySequence::new(&mut self, objects);
+                let sequence = ArraySeq::new(&mut self, objects);
                 let result = visitor.visit_seq(sequence);
                 self.exit_collection();
                 result
@@ -449,7 +449,7 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 
                 // Track the entering the dictionary to detect reference cycles.
                 self.enter_collection(object)?;
-                let map = DictionarySequence::new(&mut self, pairs);
+                let map = DictionaryMap::new(&mut self, pairs);
                 let result = visitor.visit_map(map);
                 self.exit_collection();
                 result
@@ -478,21 +478,21 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 }
 
 /// Access object to process the elements in an Array.
-struct ArraySequence<'a, 'de: 'a> {
+struct ArraySeq<'a, 'de: 'a> {
     de: &'a mut ObjectDeserializer<'de>,
     objects: vec::IntoIter<usize>,
 }
 
-impl<'a, 'de> ArraySequence<'a, 'de> {
+impl<'a, 'de> ArraySeq<'a, 'de> {
     fn new(de: &'a mut ObjectDeserializer<'de>, object_list: Vec<usize>) -> Self {
-        ArraySequence {
+        ArraySeq {
             de,
             objects: object_list.into_iter()
         }
     }
 }
 
-impl<'de, 'a> SeqAccess<'de> for ArraySequence<'a, 'de> {
+impl<'de, 'a> SeqAccess<'de> for ArraySeq<'a, 'de> {
     type Error = Error;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
@@ -509,15 +509,15 @@ impl<'de, 'a> SeqAccess<'de> for ArraySequence<'a, 'de> {
 }
 
 /// Access object used to process the elements in a Dictionary.
-struct DictionarySequence<'a, 'de: 'a> {
+struct DictionaryMap<'a, 'de: 'a> {
     de: &'a mut ObjectDeserializer<'de>,
     key_value_pairs: vec::IntoIter<(usize, usize)>,
     current_pair: Option<(usize, usize)>,
 }
 
-impl<'a, 'de> DictionarySequence<'a, 'de> {
+impl<'a, 'de> DictionaryMap<'a, 'de> {
     fn new(de: &'a mut ObjectDeserializer<'de>, list: Vec<(usize, usize)>) -> Self {
-        DictionarySequence {
+        DictionaryMap {
             de,
             key_value_pairs: list.into_iter(),
             current_pair: None,
@@ -525,7 +525,7 @@ impl<'a, 'de> DictionarySequence<'a, 'de> {
     }
 }
 
-impl<'de, 'a> MapAccess<'de> for DictionarySequence<'a, 'de> {
+impl<'de, 'a> MapAccess<'de> for DictionaryMap<'a, 'de> {
     type Error = Error;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
@@ -556,21 +556,21 @@ impl<'de, 'a> MapAccess<'de> for DictionarySequence<'a, 'de> {
 }
 
 /// Access object to provide a Map around a Date-type pseudo-structure.
-struct DateDeserializer {
+struct DateMap {
     visited: bool,
     absolute_time: f64,
 }
 
-impl DateDeserializer {
+impl DateMap {
     fn new(absolute_time: f64) -> Self {
-        DateDeserializer {
+        DateMap {
             absolute_time,
             visited: false,
         }
     }
 }
 
-impl<'de> de::MapAccess<'de> for DateDeserializer {
+impl<'de> de::MapAccess<'de> for DateMap {
     type Error = Error;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
@@ -592,21 +592,21 @@ impl<'de> de::MapAccess<'de> for DateDeserializer {
 }
 
 /// Access object to provide a Map around a UID-type pseudo-structure.
-struct UidDeserializer {
+struct UidMap {
     visited: bool,
     data: Vec<u8>,
 }
 
-impl UidDeserializer {
+impl UidMap {
     fn new(data: Vec<u8>) -> Self {
-        UidDeserializer {
+        UidMap {
             data,
             visited: false,
         }
     }
 }
 
-impl<'de> de::MapAccess<'de> for UidDeserializer {
+impl<'de> de::MapAccess<'de> for UidMap {
     type Error = Error;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
