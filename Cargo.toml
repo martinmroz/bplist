@@ -2,10 +2,26 @@
 name = "bplist"
 version = "0.1.0"
 authors = ["Martin Mroz <martinmroz@gmail.com>"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+keywords = ["encoding"]
+repository = "https://github.com/martinmroz/bplist"
+homepage = "https://github.com/martinmroz/bplist"
+documentation = "https://docs.rs/bplist"
+description = """
+A native Rust encoder and decoder of binary property list (bplist) streams.
+Provides implementations of the standard Serialize/Deserialize traits for bplist data to
+facilitate deserializing and serializing Rust structures. Aims for complete
+compatability with CoreFoundation in both directions.
+"""
+categories = ["config", "encoding", "parser-implementations"]
 edition = "2018"
 
 [dependencies]
 ascii = "1"
 nom = "5"
 ordered-float = "2"
+serde = "1.0"
+
+[dev-dependencies]
 serde = { version = "1.0", features = ["derive"] }
