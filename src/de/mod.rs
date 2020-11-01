@@ -474,6 +474,7 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
         option
         identifier
     }
+
 }
 
 /// Access object to process the elements in an Array.
