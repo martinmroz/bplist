@@ -193,6 +193,7 @@ impl<'a> ObjectTable<'a> {
 
 }
 
+/// A structure that deserializes a bplist document into Rust values.
 #[derive(Debug)]
 pub struct Deserializer<'de> {
     /// The bytes which represent the totality of the input document.
@@ -397,10 +398,10 @@ impl<'de> ObjectDeserializer<'de> {
     /// Pushes an object onto the collection stack to ensure no cycles can occur.
     #[must_use = "the result must be checked to avoid creating a cycle"]
     fn enter_collection(&mut self, object: usize) -> Result<()> {
-        if self.collection_stack.insert(object) == false {
-            Err(Error::CycleDetected)
-        } else if self.collection_stack.len() == 128 {
+        if self.collection_stack.len() == 127 {
             Err(Error::MaximumDepthExceeded)
+        } else if self.collection_stack.insert(object) == false {
+            Err(Error::CycleDetected)
         } else {
             Ok(())
         }
