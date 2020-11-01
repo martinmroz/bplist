@@ -19,10 +19,10 @@ use std::fmt;
 use crate::object::Uid;
 
 /// Name of the UID structure.
-pub const STRUCT_NAME: &str = "$__bplist_private_Uid";
+pub const STRUCT_NAME: &str = "__bplist_private_CF$UID";
 
 /// Name of the field in the structure.
-pub const STRUCT_FIELD: &str = "$__bplist_private_Uid_data";
+pub const STRUCT_FIELD: &str = "__bplist_private_CF$UID_value";
 
 /// Custom deserializer for the UID pseudo-structure.
 impl<'de> de::Deserialize<'de> for Uid {
@@ -48,8 +48,8 @@ impl<'de> de::Deserialize<'de> for Uid {
                 if value.is_none() {
                     return Err(de::Error::custom("uid key not found"));
                 }
-                let uid_from_bytes: UidFromBytes = visitor.next_value()?;
-                Ok(uid_from_bytes.value)
+                let uid_from_u64: UidFromU64 = visitor.next_value()?;
+                Ok(uid_from_u64.value)
             }
         }
 
@@ -96,32 +96,30 @@ impl<'de> de::Deserialize<'de> for UidKey {
     }
 }
 
-pub struct UidFromBytes {
+pub struct UidFromU64 {
     pub value: Uid,
 }
 
-impl<'de> de::Deserialize<'de> for UidFromBytes {
-    fn deserialize<D>(deserializer: D) -> Result<UidFromBytes, D::Error>
+impl<'de> de::Deserialize<'de> for UidFromU64 {
+    fn deserialize<D>(deserializer: D) -> Result<UidFromU64, D::Error>
     where
         D: de::Deserializer<'de>,
     {
         struct Visitor;
 
         impl<'de> de::Visitor<'de> for Visitor {
-            type Value = UidFromBytes;
+            type Value = UidFromU64;
 
             fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("uid data")
+                formatter.write_str("uid value")
             }
 
-            fn visit_bytes<E>(self, v: &[u8]) -> Result<UidFromBytes, E>
+            fn visit_u64<E>(self, v: u64) -> Result<UidFromU64, E>
             where
                 E: de::Error,
             {
-                Ok(UidFromBytes {
-                    value: Uid {
-                        data: v.into()
-                    }
+                Ok(UidFromU64 {
+                    value: Uid(v)
                 })
             }
         }

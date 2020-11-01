@@ -109,7 +109,7 @@ impl<'de> de::Deserialize<'de> for Object {
                         let date_value: date::DateFromF64 = visitor.next_value()?;
                         return Ok(Object::Date(date_value.value));
                     } else if x == uid::STRUCT_FIELD {
-                        let uid_value: uid::UidFromBytes = visitor.next_value()?;
+                        let uid_value: uid::UidFromU64 = visitor.next_value()?;
                         return Ok(Object::Uid(uid_value.value));
                     }
                 }

@@ -22,7 +22,7 @@ use std::convert::TryFrom;
 ///
 /// 1. A valid result will be returned for unsigned values between 1 and 8 bytes.
 /// 2. A valid result will be returned for a signed value of exactly 8 bytes.
-fn be_u64_n(
+pub fn be_u64_n(
     n: usize
 ) -> impl Fn(&[u8]) -> IResult<&[u8], u64> {
     assert!(n >= 1 && n <= 8, "number must be between 1 and 8 bytes, inclusive");

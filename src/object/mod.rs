@@ -34,12 +34,9 @@ pub struct Date {
     pub absolute_time: ordered_float::OrderedFloat<f64>,
 }
 
-/// A UID structure treating the contents as an opaque big-endian blob.
+/// Represents a bplist uid.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
-pub struct Uid {
-    /// A blob of identifier data.
-    pub data: Vec<u8>,
-}
+pub struct Uid(pub u64);
 
 /// Represents any valid bplist object.
 ///
@@ -72,8 +69,8 @@ pub enum Object {
 
     /// Represents a bplist UID value.
     ///
-    /// These opaque data blobs are not decoded beyond collecting the bytes into a `Vec`.
-    /// This is a custom type and is deserialized as a structure.
+    /// These are unique to the bplist format, and when transcoded, are converted to
+    /// single-entry maps of the key CF$UID to an integer value.
     Uid(Uid),
 
     /// Represents a bplist string, like `NSString`.

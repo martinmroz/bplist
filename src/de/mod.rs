@@ -171,7 +171,7 @@ impl<'a> ObjectTable<'a> {
     define_parser![
         parse_uid,
         parser::object::uid,
-        &[u8],
+        u64,
         Error::ExpectedUid
     ];
 
@@ -470,8 +470,8 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 
             // A UID object is deserialized as a Uid type via map access object.
             ObjectFormat::Uid => {
-                let bytes = self.object_table.parse_uid(object)?;
-                let uid_map = UidMap::new(Vec::from(bytes));
+                let uid = self.object_table.parse_uid(object)?;
+                let uid_map = UidMap::new(uid);
                 visitor.visit_map(uid_map)
             }
 
@@ -638,13 +638,13 @@ impl<'de> de::MapAccess<'de> for DateMap {
 /// Access object to provide a Map around a UID-type pseudo-structure.
 struct UidMap {
     visited: bool,
-    data: Vec<u8>,
+    uid: u64,
 }
 
 impl UidMap {
-    fn new(data: Vec<u8>) -> Self {
+    fn new(uid: u64) -> Self {
         UidMap {
-            data,
+            uid,
             visited: false,
         }
     }
@@ -667,7 +667,6 @@ impl<'de> de::MapAccess<'de> for UidMap {
     fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value>
     where
         V: DeserializeSeed<'de> {
-        let data_to_yield = std::mem::replace(&mut self.data, vec![]);
-        seed.deserialize(data_to_yield.into_deserializer())
+        seed.deserialize(self.uid.into_deserializer())
     }
 }

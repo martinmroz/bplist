@@ -22,7 +22,7 @@ use std::convert::TryFrom;
 use std::string::FromUtf16Error;
 
 use crate::document::ObjectFormat;
-use crate::de::parser::utils::be_usize_n;
+use crate::de::parser::utils::{be_usize_n, be_u64_n};
 
 /// Returns a parser which consumes a marker conforming to the specified format.
 /// On success, the parser yields both the validated format and the encoded value.
@@ -231,10 +231,18 @@ pub fn utf16_string(input: &[u8]) -> IResult<&[u8], String> {
     )(input)
 }
 
-/// Parses a variable-length uid object and returns the corresponding slice of the input.
-pub fn uid(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    let (input, (_, encoded_value)) = marker(ObjectFormat::Uid)(input)?;
-    take(encoded_value + 1)(input)
+/// Parses a uid object and the returns the trailing 64-bit value.
+pub fn uid(input: &[u8]) -> IResult<&[u8], u64> {
+    let (input, byte_count) = map(
+        verify(marker(ObjectFormat::Uid), |&(_, encoded_value)| {
+            (encoded_value == 0) ||
+            (encoded_value == 1) ||
+            (encoded_value == 3) ||
+            (encoded_value == 7)
+        }),
+        |(_, encoded_value)| encoded_value as usize + 1
+    )(input)?;
+    be_u64_n(byte_count)(input)
 }
 
 /// Returns a parser for an array with the specified-width object references.
@@ -311,7 +319,7 @@ mod tests {
             0b0110_1110, // UTF16 String (length 15)
             0b0110_1111, // UTF16 String (extended payload)
             0b1000_0000, // UID (length 1)
-            0b1000_1111, // UID (length 16)
+            0b1000_0111, // UID (length 8)
             0b1010_0000, // Array (length 0)
             0b1010_1110, // Array (length 15)
             0b1010_1111, // Array (extended payload)
@@ -340,7 +348,7 @@ mod tests {
             (ObjectFormat::Utf16String, 0b1110),
             (ObjectFormat::Utf16String, 0b1111),
             (ObjectFormat::Uid, 0b0000),
-            (ObjectFormat::Uid, 0b1111),
+            (ObjectFormat::Uid, 0b0111),
             (ObjectFormat::Array, 0b0000),
             (ObjectFormat::Array, 0b1110),
             (ObjectFormat::Array, 0b1111),
@@ -679,12 +687,12 @@ mod tests {
         let test_input = &[
             // Uid([length = 1])
             0b1000_0000, 0x00,
-            // Uid([length = 16, encoded])
-            0b1000_1111, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x06, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+            // Uid([length = 8, encoded])
+            0b1000_0111, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         ];
         let expected_output = vec![
-            &test_input[1 .. 2],
-            &test_input[3 .. 19],
+            0,
+            283686952306183
         ];
         let count = expected_output.len();
         assert_eq!(
