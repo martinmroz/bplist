@@ -1,0 +1,12 @@
+[package]
+name = "bplist"
+version = "0.1.0"
+authors = ["Martin Mroz <martinmroz@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+ascii = "1"
+log = "0.4"
+nom = "5"
+pretty_env_logger = "0.3"
+serde = { version = "1.0", features = ["derive"] }
