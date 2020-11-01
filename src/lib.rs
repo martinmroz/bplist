@@ -12,5 +12,5 @@ mod document;
 mod error;
 mod object;
 
-pub use de::{from_bytes, Deserializer};
+pub use de::{from_slice, Deserializer};
 pub use error::{Error, Result};

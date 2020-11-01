@@ -28,7 +28,7 @@
 
 use ordered_float::OrderedFloat;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// A date structure roughly equivalent to an `NSDate`.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -45,11 +45,11 @@ pub struct Uid {
     pub data: Vec<u8>,
 }
 
-/// An array of objects roughly equivalent to an `NSArray.
+/// An array of objects roughly equivalent to an `NSArray`.
 pub type Array = Vec<Object>;
 
-/// An map of Objects to Objects roughly equivalent to an `NSDictionary.
-pub type Dictionary = HashMap<Object, Object>;
+/// An map of Objects to Objects roughly equivalent to an `NSDictionary`.
+pub type Dictionary = BTreeMap<Object, Object>;
 
 /// Any value which can be encoded in a binary property list.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -70,4 +70,6 @@ pub enum Object {
     String(String),
     /// An array of objects.
     Array(Array),
+    /// A dictionary mapping Objects onto other Objects.
+    Dictionary(Dictionary),
 }

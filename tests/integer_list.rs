@@ -13,7 +13,7 @@ fn test_deserialize_integer_list() {
     file.read_to_end(&mut data).unwrap();
 
     assert_eq!(
-        bplist::from_bytes::<Vec<u8>>(&data),
+        bplist::from_slice::<Vec<u8>>(&data),
         Ok(vec![1,2,3,4,5])
     );
 }

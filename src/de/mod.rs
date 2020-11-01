@@ -200,18 +200,60 @@ pub struct Deserializer<'de> {
 }
 
 impl<'de> Deserializer<'de> {
-    /// Designated initializer for a binary property list object deserializer.
-    pub fn from_bytes(input: &'de [u8]) -> Self {
+    /// Creates a bplist deserializer from a `&[u8]`.
+    pub fn from_slice(input: &'de [u8]) -> Self {
         Deserializer { input }
     }
 }
 
-/// Support for deserializing any supported type from a binary property list document.
-pub fn from_bytes<'a, T>(b: &'a [u8]) -> Result<T>
+/// Deserialize an instance of type `T` from a bplist document.
+///
+/// # Example
+///
+/// ```
+/// use serde::Deserialize;
+///
+/// #[derive(Deserialize, Debug)]
+/// struct User {
+///     fingerprint: String,
+///     location: String,
+/// }
+///
+/// fn main() {
+///     // `j` is a binary property list with one `User` dictionary.
+///     let j = &[0x62, 0x70, 0x6C, 0x69, 0x73, 0x74, 0x30, 0x30, 
+///               0xD2, 0x01, 0x02, 0x03, 0x04, 0x5B, 0x66, 0x69,
+///               0x6E, 0x67, 0x65, 0x72, 0x70, 0x72, 0x69, 0x6E,
+///               0x74, 0x58, 0x6C, 0x6F, 0x63, 0x61, 0x74, 0x69,
+///               0x6F, 0x6E, 0x5F, 0x10, 0x12, 0x30, 0x78, 0x46,
+///               0x39, 0x42, 0x41, 0x31, 0x34, 0x33, 0x42, 0x39,
+///               0x35, 0x46, 0x46, 0x36, 0x44, 0x38, 0x32, 0x5E,
+///               0x4D, 0x65, 0x6E, 0x6C, 0x6F, 0x20, 0x50, 0x61,
+///               0x72, 0x6B, 0x2C, 0x20, 0x43, 0x41, 0x08, 0x0D,
+///               0x19, 0x22, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00,
+///               0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+///               0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
+///               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+///               0x00, 0x00, 0x46];
+///
+///     let u: User = bplist::from_slice(j).unwrap();
+///     println!("{:#?}", u);
+/// }
+/// ```
+///
+/// # Errors
+///
+/// This conversion can fail if the structure of the input does not match the
+/// structure expected by `T`, for example if `T` is a struct type but the input
+/// contains something other than a Dictionary. It can also fail if the structure
+/// is correct but `T`'s implementation of `Deserialize` decides that something
+/// is wrong with the data, for example required struct fields are missing from
+/// the dictionary or some number is too big to fit in the expected primitive type.
+pub fn from_slice<'a, T>(b: &'a [u8]) -> Result<T>
 where
     T: Deserialize<'a>,
 {
-    let mut deserializer = Deserializer::from_bytes(b);
+    let mut deserializer = Deserializer::from_slice(b);
     T::deserialize(&mut deserializer)
 }
 

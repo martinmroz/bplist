@@ -21,7 +21,7 @@ fn test_deserialize_point() {
     file.read_to_end(&mut data).unwrap();
 
     assert_eq!(
-        bplist::from_bytes::<Point>(&data),
+        bplist::from_slice::<Point>(&data),
         Ok(Point {
             x: 1,
             y: 20
