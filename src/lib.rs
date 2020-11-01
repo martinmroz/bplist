@@ -10,7 +10,9 @@
 mod de;
 mod document;
 mod error;
-mod object;
+
+pub mod object;
+pub use object::Object;
 
 pub use de::{from_slice, Deserializer};
 pub use error::{Error, Result};
