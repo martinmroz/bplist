@@ -26,16 +26,12 @@
 //! 1. https://github.com/opensource-apple/CF/blob/master/ForFoundationOnly.h
 //! 2. https://opensource.apple.com/source/CF/CF-855.17/CFBinaryPList.c
 
-use ordered_float::OrderedFloat;
-
-use std::collections::BTreeMap;
-
 /// A date structure roughly equivalent to an `NSDate`.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub struct Date {
     /// A double-precision 64-bit offset, in seconds, from the Core Data Epoch.
     /// This is defined as 1 January 2001, 00:00:00 UTC.
-    pub absolute_time: OrderedFloat<f64>,
+    pub absolute_time: ordered_float::OrderedFloat<f64>,
 }
 
 /// A UID structure treating the contents as an opaque big-endian blob.
@@ -61,7 +57,7 @@ pub enum Object {
     /// Unlike normal `f64` values, these values have a defined order, implementing
     /// `Ord`, `Eq` and `Hash` in addition to `PartialOrd` and `PartialEq`.
     /// This allows them to be used as keys and values in Dictionaries.
-    Real(OrderedFloat<f64>),
+    Real(ordered_float::OrderedFloat<f64>),
 
     /// Represents a bplist data instance, like `NSData`.
     Data(Vec<u8>),
@@ -91,7 +87,7 @@ pub enum Object {
     /// The dictionary is backed by a `BTreeMap` meaning that objects have a defined order
     /// however that is not necessarily going to be the order in which they are
     /// encountered during parsing and therefore may not round-trip cleanly.
-    Dictionary(BTreeMap<Object, Object>),
+    Dictionary(std::collections::BTreeMap<Object, Object>),
 }
 
 mod de;
