@@ -12,13 +12,14 @@
 //! The bplist format version 00 supports the following object kinds:
 //!
 //! 1. Boolean.
-//! 2. Number (Integer or Floating Point).
-//! 3. Data (Aribtrary Bytes).
-//! 4. Date.
-//! 5. String.
-//! 6. Uid.
-//! 7. Array.
-//! 8. Dictionary.
+//! 2. Integers, up to 64 bits long.
+//! 3. Real, single- and double-precision.
+//! 4. Data.
+//! 5. Date.
+//! 6. String.
+//! 7. Uid.
+//! 8. Array.
+//! 9. Dictionary.
 //!
 //! # References
 //!
@@ -26,6 +27,8 @@
 //! 2. https://opensource.apple.com/source/CF/CF-855.17/CFBinaryPList.c
 
 use ordered_float::OrderedFloat;
+
+use std::collections::HashMap;
 
 /// A date structure roughly equivalent to an `NSDate`.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
@@ -44,6 +47,9 @@ pub struct Uid {
 
 /// An array of objects roughly equivalent to an `NSArray.
 pub type Array = Vec<Object>;
+
+/// An map of Objects to Objects roughly equivalent to an `NSDictionary.
+pub type Dictionary = HashMap<Object, Object>;
 
 /// Any value which can be encoded in a binary property list.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
