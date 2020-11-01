@@ -108,11 +108,16 @@ impl<'de> de::Deserialize<'de> for Object {
                     }
                 }
 
-                // Process all key-value pairs.
+                // Process all key-value pairs checking for duplicates.
                 while let Some(k) = key {
-                    let v = visitor.next_value()?;
-                    map.insert(k, v);
-                    key = visitor.next_key()?;
+                    if map.contains_key(&k) {
+                        let msg = format!("duplicate key: `{:?}`", k);
+                        return Err(de::Error::custom(msg));
+                    } else {
+                        let v = visitor.next_value()?;
+                        map.insert(k, v);
+                        key = visitor.next_key()?;
+                    }
                 }
 
                 Ok(Object::Dictionary(map))
