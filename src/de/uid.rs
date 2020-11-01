@@ -48,9 +48,8 @@ impl<'de> de::Deserialize<'de> for Uid {
                 if value.is_none() {
                     return Err(de::Error::custom("uid key not found"));
                 }
-                Ok(Uid {
-                    data: visitor.next_value()?
-                })
+                let uid_from_bytes: UidFromBytes = visitor.next_value()?;
+                Ok(uid_from_bytes.value)
             }
         }
 
@@ -94,5 +93,39 @@ impl<'de> de::Deserialize<'de> for UidKey {
 
         deserializer.deserialize_identifier(FieldVisitor)?;
         Ok(UidKey)
+    }
+}
+
+pub struct UidFromBytes {
+    pub value: Uid,
+}
+
+impl<'de> de::Deserialize<'de> for UidFromBytes {
+    fn deserialize<D>(deserializer: D) -> Result<UidFromBytes, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        struct Visitor;
+
+        impl<'de> de::Visitor<'de> for Visitor {
+            type Value = UidFromBytes;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("uid data")
+            }
+
+            fn visit_bytes<E>(self, v: &[u8]) -> Result<UidFromBytes, E>
+            where
+                E: de::Error,
+            {
+                Ok(UidFromBytes {
+                    value: Uid {
+                        data: v.into()
+                    }
+                })
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
     }
 }

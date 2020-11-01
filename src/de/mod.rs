@@ -7,9 +7,9 @@
 // copied, modified, or distributed except according to those terms.
 //
 
-mod date;
+pub(crate) mod date;
+pub(crate) mod uid;
 mod parser;
-mod uid;
 
 use serde::Deserialize;
 use serde::de::{

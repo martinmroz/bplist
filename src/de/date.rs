@@ -13,7 +13,6 @@
 //! a special name and field, similar to the way the TOML crate approaches it.
 
 use serde::de;
-use ordered_float::OrderedFloat;
 
 use std::fmt;
 
@@ -38,7 +37,7 @@ impl<'de> de::Deserialize<'de> for Date {
             type Value = Date;
 
             fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("a Date")
+                formatter.write_str("a date")
             }
 
             fn visit_map<V>(self, mut visitor: V) -> Result<Date, V::Error>
@@ -49,10 +48,8 @@ impl<'de> de::Deserialize<'de> for Date {
                 if value.is_none() {
                     return Err(de::Error::custom("date key not found"));
                 }
-                let absolute_time: f64 = visitor.next_value()?;
-                Ok(Date {
-                    absolute_time: OrderedFloat::from(absolute_time)
-                })
+                let date_from_f64: DateFromF64 = visitor.next_value()?;
+                Ok(date_from_f64.value)
             }
         }
 
@@ -96,5 +93,39 @@ impl<'de> de::Deserialize<'de> for DateKey {
 
         deserializer.deserialize_identifier(FieldVisitor)?;
         Ok(DateKey)
+    }
+}
+
+pub struct DateFromF64 {
+    pub value: Date,
+}
+
+impl<'de> de::Deserialize<'de> for DateFromF64 {
+    fn deserialize<D>(deserializer: D) -> Result<DateFromF64, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        struct Visitor;
+
+        impl<'de> de::Visitor<'de> for Visitor {
+            type Value = DateFromF64;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("absolute time offset from core data epoch")
+            }
+
+            fn visit_f64<E>(self, v: f64) -> Result<DateFromF64, E>
+            where
+                E: de::Error,
+            {
+                Ok(DateFromF64 {
+                    value: Date {
+                        absolute_time: v.into()
+                    }
+                })
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
     }
 }
