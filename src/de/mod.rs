@@ -307,19 +307,19 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut Deserializer<'de> {
     }
 
     serde::forward_to_deserialize_any! {
-        bool 
+        bool
         u8 u16 u32 u64 u128
         i8 i16 i32 i64 i128
-        f32 f64 
-        char str string 
+        f32 f64
+        char str string
         seq map
         bytes byte_buf
         enum
         struct
         unit unit_struct
         tuple tuple_struct
-        newtype_struct 
-        ignored_any 
+        newtype_struct
+        ignored_any
         option
         identifier
     }
@@ -420,15 +420,15 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
             // A date object is deserialized as a Date type via map access object.
             ObjectFormat::Date => {
                 let absolute_time = self.object_table.parse_date(object)?;
-                let deserializer = DateMap::new(absolute_time);
-                visitor.visit_map(deserializer)
+                let date_map = DateMap::new(absolute_time);
+                visitor.visit_map(date_map)
             }
 
             // A UID object is deserialized as a Uid type via map access object.
             ObjectFormat::Uid => {
                 let bytes = self.object_table.parse_uid(object)?;
-                let deserializer = UidMap::new(Vec::from(bytes));
-                visitor.visit_map(deserializer)
+                let uid_map = UidMap::new(Vec::from(bytes));
+                visitor.visit_map(uid_map)
             }
 
             // Arrays are processed through a sequence access object.
@@ -437,8 +437,8 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 
                 // Track entering the array to detect reference cycles.
                 self.enter_collection(object)?;
-                let sequence = ArraySeq::new(&mut self, objects);
-                let result = visitor.visit_seq(sequence);
+                let array_seq = ArraySeq::new(&mut self, objects);
+                let result = visitor.visit_seq(array_seq);
                 self.exit_collection();
                 result
             }
@@ -449,8 +449,8 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
 
                 // Track the entering the dictionary to detect reference cycles.
                 self.enter_collection(object)?;
-                let map = DictionaryMap::new(&mut self, pairs);
-                let result = visitor.visit_map(map);
+                let dictionary_map = DictionaryMap::new(&mut self, pairs);
+                let result = visitor.visit_map(dictionary_map);
                 self.exit_collection();
                 result
             }
@@ -458,19 +458,19 @@ impl<'de, 'b> de::Deserializer<'de> for &'b mut ObjectDeserializer<'de> {
     }
 
     serde::forward_to_deserialize_any! {
-        bool 
+        bool
         u8 u16 u32 u64 u128
         i8 i16 i32 i64 i128
-        f32 f64 
-        char str string 
+        f32 f64
+        char str string
         seq map
         bytes byte_buf
         enum
         struct
         unit unit_struct
         tuple tuple_struct
-        newtype_struct 
-        ignored_any 
+        newtype_struct
+        ignored_any
         option
         identifier
     }
