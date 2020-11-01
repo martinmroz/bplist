@@ -16,6 +16,12 @@ use std::fmt;
 use crate::de::{date, uid};
 use crate::object::Object;
 
+/// Deserialization of bplist objects into an object model which supports
+/// all values that can be losslessly read from and written into a bplist document.
+/// This is implemented generically, meaning that substantially any serde format will be
+/// able to deserialize into a bplist value. There are two notable exceptions, `Uid`
+/// and `Date`. These are implemented as single-entry maps/structs with magic keys,
+/// and as such, will only be deserialized from a bplist object.
 impl<'de> de::Deserialize<'de> for Object {
     fn deserialize<D>(deserializer: D) -> Result<Object, D::Error>
     where

@@ -41,9 +41,9 @@ pub struct Uid {
     pub data: Vec<u8>,
 }
 
-/// Represents any valid bplist value.
+/// Represents any valid bplist object.
 ///
-/// See the `bplist::value` module documentation for usage examples.
+/// See the `bplist::object` module documentation for usage examples.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
 pub enum Object {
     /// Represents a bplist boolean, like `NSNumber`.
