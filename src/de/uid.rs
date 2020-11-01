@@ -37,7 +37,7 @@ impl<'de> de::Deserialize<'de> for Uid {
             type Value = Uid;
 
             fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("a UID")
+                formatter.write_str("a uid")
             }
 
             fn visit_map<V>(self, mut visitor: V) -> Result<Uid, V::Error>
@@ -76,7 +76,7 @@ impl<'de> de::Deserialize<'de> for UidKey {
             type Value = ();
 
             fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("a valid UID field")
+                formatter.write_str("a valid uid field")
             }
 
             fn visit_str<E>(self, s: &str) -> Result<(), E>
