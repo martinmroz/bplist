@@ -16,3 +16,6 @@ Cargo.lock
 
 # MacOS X
 **/.DS_Store
+
+# Visual Studio Code
+**/.vscode/
